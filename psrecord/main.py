@@ -28,6 +28,7 @@ from __future__ import (unicode_literals, division, print_function,
 
 import time
 import argparse
+import subprocess
 
 children = []
 
@@ -39,6 +40,9 @@ def get_percent(process):
 def get_memory(process):
     return process.memory_info()
 
+def get_total_memory_gpu():
+    output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,noheader,nounits'])
+    return int(output)
 
 def all_children(pr):
 
@@ -121,11 +125,12 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
 
     if logfile:
         f = open(logfile, 'w')
-        f.write("# {0:12s} {1:12s} {2:12s} {3:12s}\n".format(
+        f.write("# {0:12s} {1:12s} {2:12s} {3:12s} {4:12s}\n".format(
             'Elapsed time'.center(12),
             'CPU (%)'.center(12),
             'Real (MB)'.center(12),
-            'Virtual (MB)'.center(12))
+            'Virtual (MB)'.center(12),
+            'VRAM (MB)'.center(12)),
         )
 
     log = {}
@@ -133,6 +138,7 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
     log['cpu'] = []
     log['mem_real'] = []
     log['mem_virtual'] = []
+    log['mem_gpu'] = []
 
     try:
 
@@ -179,12 +185,15 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
                     current_mem_real += current_mem.rss / 1024. ** 2
                     current_mem_virtual += current_mem.vms / 1024. ** 2
 
+            current_mem_gpu = get_total_memory_gpu()
+
             if logfile:
-                f.write("{0:12.3f} {1:12.3f} {2:12.3f} {3:12.3f}\n".format(
+                f.write("{0:12.3f} {1:12.3f} {2:12.3f} {3:12.3f} {4:12.3f}\n".format(
                     current_time - start_time,
                     current_cpu,
                     current_mem_real,
-                    current_mem_virtual))
+                    current_mem_virtual,
+                    current_mem_gpu))
                 f.flush()
 
             if interval is not None:
@@ -196,6 +205,7 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
                 log['cpu'].append(current_cpu)
                 log['mem_real'].append(current_mem_real)
                 log['mem_virtual'].append(current_mem_virtual)
+                log['mem_gpu'].append(current_mem_gpu)
 
     except KeyboardInterrupt:  # pragma: no cover
         pass
@@ -224,6 +234,13 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
             ax2.set_ylim(0., max(log['mem_real']) * 1.2)
 
             ax2.set_ylabel('Real Memory (MB)', color='b')
+
+            ax3 = ax.twinx()
+
+            ax3.plot(log['times'], log['mem_gpu'], '-', lw=1, color='g')
+            ax3.set_ylim(0., max(log['mem_gpu']) * 1.2)
+
+            ax3.set_ylabel('VRAM (MB)', color='g')
 
             ax.grid()
 

@@ -24,10 +24,10 @@ before_install:
     - source ci-helpers/travis/setup_conda.sh
 
 script:
-    - py.test --cov psrecord psrecord
+    - py.test --cov psrecord-plus psrecord-plus
     - python setup.py check --restructuredtext
     - pip install flake8
-    - flake8 psrecord
+    - flake8 psrecord-plus
 
 after_success:
     - codecov
