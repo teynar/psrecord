@@ -33,7 +33,7 @@ with open('README.rst') as infile:
 
 from psrecord import __version__
 
-setup(name='psrecord-plus',
+setup(name='psrecord',
       version=__version__,
       description='Python package to record activity from processes',
       long_description=long_description,
@@ -41,9 +41,9 @@ setup(name='psrecord-plus',
       license='Simplified BSD License',
       author='Thomas Robitaille',
       author_email='thomas.robitaille@gmail.com',
-      packages=['psrecord-plus', 'psrecord-plus.tests'],
-      provides=['psrecord-plus'],
-      scripts=['scripts/psrecord-plus'],
+      packages=['psrecord', 'psrecord.tests'],
+      provides=['psrecord'],
+      scripts=['scripts/psrecord'],
       install_requires=['psutil>=2'],
       cmdclass={'build_py': build_py},
       classifiers=[
