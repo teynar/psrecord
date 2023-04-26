@@ -220,13 +220,14 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
         with plt.rc_context({'backend': 'Agg'}):
 
             fig = plt.figure()
+
             ax = fig.add_subplot(1, 1, 1)
 
-            ax.plot(log['times'], log['cpu'], '-', lw=1, color='r')
+            ax.plot(log['times'], log['mem_gpu'], '-', lw=1, color='r')
 
-            ax.set_ylabel('CPU (%)', color='r')
+            ax.set_ylabel('VRAM (MB)', color='r')
             ax.set_xlabel('time (s)')
-            ax.set_ylim(0., max(log['cpu']) * 1.2)
+            ax.set_ylim(0., max(log['mem_gpu']) * 1.2)
 
             ax2 = ax.twinx()
 
@@ -234,13 +235,6 @@ def monitor(pid, logfile=None, plot=None, duration=None, interval=None,
             ax2.set_ylim(0., max(log['mem_real']) * 1.2)
 
             ax2.set_ylabel('Real Memory (MB)', color='b')
-
-            ax3 = ax.twinx()
-
-            ax3.plot(log['times'], log['mem_gpu'], '-', lw=1, color='g')
-            ax3.set_ylim(0., max(log['mem_gpu']) * 1.2)
-
-            ax3.set_ylabel('VRAM (MB)', color='g')
 
             ax.grid()
 
